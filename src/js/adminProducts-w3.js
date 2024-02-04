@@ -15,6 +15,7 @@ createApp({
       tempProduct: {
         "imagesUrl": []
       },
+      pages:{},
       modalProduct:null,//productModal
       modalDel:null,//delProductModal
       isNew:false
@@ -34,12 +35,13 @@ createApp({
           window.location = "adminLogin.html";
         });
     },
-    getProducts() {
+    getProducts(page=1) {//參數預設值
       //有分頁
       axios
-        .get(`${this.api_url}/api/${this.api_path}/admin/products`)
+        .get(`${this.api_url}/api/${this.api_path}/admin/products?page=${page}`)
         .then((res) => {
           this.products = res.data.products;
+          this.pages = res.data.pagination;
           // console.log(res);
         })
         .catch((arr) => {

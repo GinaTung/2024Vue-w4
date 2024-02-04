@@ -12,7 +12,7 @@ export default {
     <ul class="pagination justify-content-center">
       <li class="page-item" :class="{disabled : !pages.has_pre}">
         <a class="page-link" href="#" aria-label="Previous">
-          <span aria-hidden="true"  @click="getProducts(pages.current_page-1)">&laquo;</span>
+          <span aria-hidden="true"  @click="getProducts(pages.current_page -1)">&laquo;</span>
         </a>
       </li>
       <!-- 為何key要加123?
@@ -25,7 +25,7 @@ export default {
     v-blind:class插入物件 { 套用Class名稱 : 判斷式 } -->
       <li class="page-item" :class="{disabled : !pages.has_next}">
         <a class="page-link" href="#" aria-label="Next">
-          <span aria-hidden="true" @click="getProducts(pages.current_page+1)">&raquo;</span>
+          <span aria-hidden="true" @click="getProducts(pages.current_page +1)">&raquo;</span>
         </a>
       </li>
     </ul>
