@@ -6,10 +6,12 @@
 // 4.refs,bootstrap
 
 export default {
-    props:['tempProduct','updateProduct','isNew'],
+    props:['tempProduct','updateProduct','isNew','upload','setRating','starScore'],
     data(){
         return{
-            modalProduct:null
+            modalProduct:null,
+            selectedRating: null,
+            rating_id: null,
         }
     },
     methods:{
@@ -18,7 +20,8 @@ export default {
         },
         closeModal(){
             this.modalProduct.hide();
-        }
+        },
+
     },
     template:`
     <div
@@ -76,6 +79,9 @@ export default {
                 <button v-else class="btn btn-outline-danger btn-sm d-block w-100" @click="tempProduct.imagesUrl.pop()">
                   刪除圖片
                 </button>
+              </div>
+              <div class="pt-3">
+                <input type="file" class="form-control" id="file" ref="fileInput" placeholder="請輸入圖片連結" @change="upload">
               </div>
               <div>
               </div>
@@ -135,6 +141,21 @@ export default {
                     class="form-control"
                     placeholder="請輸入售價"
                   />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-8 d-flex align-items-center">
+                  <label for="range" class="form-label me-3 mb-0">商品評價</label>
+                  <div class="starrating risingstar d-flex justify-content-center flex-row-reverse">
+                  <input type="radio" id="star5" name="rating_id" :value="5" @click="setRating(tempProduct.id, 5)"/><label for="star5" title="5 star"></label>
+                  <input type="radio" id="star4" name="rating_id" :value="4" @click="setRating(tempProduct.id, 4)"/><label for="star4" title="4 star"></label>
+                  <input type="radio" id="star3" name="rating_id" :value="3" @click="setRating(tempProduct.id, 3)"/><label for="star3" title="3 star"></label>
+                  <input type="radio" id="star2" name="rating_id" :value="2" @click="setRating(tempProduct.id, 2)"/><label for="star2" title="2 star"></label>
+                  <input type="radio" id="star1" name="rating_id" :value="1" @click="setRating(tempProduct.id, 1)"/><label for="star1" title="1 star"></label>
+              </div>
+              <div class="col-md-4 ms-3">
+                {{starScore}} 顆星
+                </div>
                 </div>
               </div>
               <hr />
