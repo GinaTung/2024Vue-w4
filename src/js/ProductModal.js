@@ -6,12 +6,10 @@
 // 4.refs,bootstrap
 
 export default {
-    props:['tempProduct','updateProduct','isNew','upload','setRating','starScore'],
+    props:['tempProduct','updateProduct','isNew','upload','score','tempRating','ratingData'],
     data(){
         return{
             modalProduct:null,
-            selectedRating: null,
-            rating_id: null,
         }
     },
     methods:{
@@ -147,15 +145,16 @@ export default {
                 <div class="col-md-8 d-flex align-items-center">
                   <label for="range" class="form-label me-3 mb-0">商品評價</label>
                   <div class="starrating risingstar d-flex justify-content-center flex-row-reverse">
-                  <input type="radio" id="star5" name="rating_id" :value="5" @click="setRating(tempProduct.id, 5)"/><label for="star5" title="5 star"></label>
-                  <input type="radio" id="star4" name="rating_id" :value="4" @click="setRating(tempProduct.id, 4)"/><label for="star4" title="4 star"></label>
-                  <input type="radio" id="star3" name="rating_id" :value="3" @click="setRating(tempProduct.id, 3)"/><label for="star3" title="3 star"></label>
-                  <input type="radio" id="star2" name="rating_id" :value="2" @click="setRating(tempProduct.id, 2)"/><label for="star2" title="2 star"></label>
-                  <input type="radio" id="star1" name="rating_id" :value="1" @click="setRating(tempProduct.id, 1)"/><label for="star1" title="1 star"></label>
+                  <input type="radio" id="star5" name="rating" :value="5" v-model="tempRating.score" @click="ratingData(tempProduct.id,5)" /><label for="star5" title="5 star"></label>
+                  <input type="radio" id="star4" name="rating" :value="4" v-model="tempRating.score" @click="ratingData(tempProduct.id,4)" /><label for="star4" title="4 star"></label>
+                  <input type="radio" id="star3" name="rating" :value="3" v-model="tempRating.score" @click="ratingData(tempProduct.id,3)" /><label for="star3" title="3 star"></label>
+                  <input type="radio" id="star2" name="rating" :value="2" v-model="tempRating.score" @click="ratingData(tempProduct.id,2)" /><label for="star2" title="2 star"></label>
+                  <input type="radio" id="star1" name="rating" :value="1" v-model="tempRating.score" @click="ratingData(tempProduct.id,1)" /><label for="star1" title="1 star"></label>
                 </div>
                 <div class="col-md-4 ms-3">
-                  {{starScore}} 顆星
+                  {{tempRating.score ? tempRating.score : 0}}顆星
                   </div>
+                  <button type="button" class="btn btn-primary" @click.prevent="ratingData(tempProduct.id,0)">清除</button>
                 </div>
               </div>
               <hr />

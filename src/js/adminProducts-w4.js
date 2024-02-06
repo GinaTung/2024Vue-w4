@@ -21,10 +21,9 @@ createApp({
       modalProduct:null,//productModal
       modelDel:null,//delProductModal
       isNew:false,
-      rating_id: null,
-      starScore:0,
-      tempproduct2: [],
-      latestRating:[]
+      ratingId:0,
+      score:0,
+      tempRating:{},
     };
   },
   methods: {
@@ -49,20 +48,24 @@ createApp({
           this.products = res.data.products;
           this.pages = res.data.pagination;
           console.log(res);
+          // 如果是新增商品，並且最新商品列表不為空，取最後一個商品的 ID
+          if (this.isNew && this.products.length > 0) {
+            const newProductId = this.products[0].id;
+            // 調用 ratingData 方法，將新增商品的 ID 及星值更新到 cookie 中
+            this.ratingData(newProductId, this.tempRating.score);
+          }
         })
         .catch((arr) => {
           alert(`${err.data.message}`);
         });
     },
-    setRating(id,star) {
-      this.rating_id = id;
-      this.starScore = star;
-    // 保存最新的評分
-    const latestRating = { id: this.rating_id, rating: this.starScore };
-    
-    // 將最新的評分保存到本地存儲中
-    localStorage.setItem('latestRating', JSON.stringify(latestRating));
-    console.log(latestRating);
+    ratingData(ratingId,score){
+      if(ratingId !== undefined){
+        this.tempRating.ratingId = ratingId;
+        this.tempRating.score = score;
+        // Set cookie with product id and rating
+        document.cookie = `product_${this.tempRating.ratingId}_rating=${this.tempRating.score}`;
+      }
     },
     openModal(status,product) {
       // myModal.show();=>element id方法
@@ -84,17 +87,32 @@ createApp({
         }
       this.isNew = false;
 
-        // 從本地存儲中讀取特定產品的評分
-    const productRating = JSON.parse(localStorage.getItem(`productRating_${product.id}`));
-
-    // 如果找到相應的評分，設置 starScore；否則，設置為 0 或其他默認值
-    this.starScore = productRating ? productRating.rating : 0;
-
-
-
       // this.modalProduct.show();
-      console.log(this.productRating);
         this.$refs.pModal.openModal(this.tempProduct, this.isNew); // 將資料透過 props 傳遞
+
+        // Read cookie and return the rating for the specified product id
+        const cookieName = `product_${this.tempProduct.id}_rating`;  // 使用 product.id 來區分每個產品
+        const cookies = document.cookie.split(';');
+        let found = false; // 用於標記是否找到相應的 cookie
+        for (const cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          if (name === cookieName) {
+            // 更新 tempRating 的值，以便 Vue.js 可以偵測到變化
+            this.tempRating.ratingId = this.tempProduct.id;
+            this.tempRating.score = parseInt(value, 10) || 0;
+            console.log(`Rating for product ${this.tempProduct.id}: ${value}`);
+            found = true;
+            break; // 找到相應的 cookie 後退出迴圈
+          }
+        }
+
+        // 如果未找到相應的 cookie，設定評價為預設值 0
+        if (!found) {
+          this.tempRating.ratingId = this.tempProduct.id;
+          this.tempRating.score = 0;
+          console.log(`No rating found for product ${this.tempProduct.id}. Using default value: 0`);
+        }
+
       }else if(status === 'delete'){
         this.tempProduct = { ...product };
         this.$refs.delpModal.openModal();
@@ -149,6 +167,8 @@ createApp({
       .then((res) => {
         // console.log(res);
         this.getProducts();
+        this.removeProductRatingCookie(this.tempProduct.id);  // 將此行移動到重置tempProduct之後
+        this.removeProductRatingCookie2();
         this.tempProduct ={};
         this.$refs.delpModal.closeModal();
       })
@@ -188,6 +208,12 @@ createApp({
           // console.dir(err);
           alert(`${err.data.message}`);
         });
+    },
+    removeProductRatingCookie(ratingId) {
+      document.cookie = `product_${ratingId}_rating=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    },
+    removeProductRatingCookie2() {
+      document.cookie = `product_undefined_rating=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     }
   },
   mounted() {
