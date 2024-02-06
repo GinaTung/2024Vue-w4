@@ -83,6 +83,29 @@ createApp({
         this.isNew = false;
         this.modalProduct.show();
 
+        // Read cookie and return the rating for the specified product id
+        const cookieName = `product_${this.tempProduct.id}_rating`;  // 使用 product.id 來區分每個產品
+        const cookies = document.cookie.split(';');
+        let found = false; // 用於標記是否找到相應的 cookie
+        for (const cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          if (name === cookieName) {
+            // 更新 tempRating 的值，以便 Vue.js 可以偵測到變化
+            this.tempRating.ratingId = this.tempProduct.id;
+            this.tempRating.score = parseInt(value, 10) || 0;
+            console.log(`Rating for product ${this.tempProduct.id}: ${value}`);
+            found = true;
+            break; // 找到相應的 cookie 後退出迴圈
+          }
+        }
+
+        // 如果未找到相應的 cookie，設定評價為預設值 0
+        if (!found) {
+          this.tempRating.ratingId = this.tempProduct.id;
+          this.tempRating.score = 0;
+          console.log(`No rating found for product ${this.tempProduct.id}. Using default value: 0`);
+        }
+
       } else if(status === 'delete'){
         this.tempProduct = { ...product };
         this.modalDel.show();
