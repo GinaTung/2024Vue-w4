@@ -47,13 +47,17 @@ createApp({
         .then((res) => {
           this.products = res.data.products;
           this.pages = res.data.pagination;
-          console.log(res);
-          // 如果是新增商品，並且最新商品列表不為空，取最後一個商品的 ID
-          if (this.isNew && this.products.length > 0) {
+          // console.log(res);
+      // 如果是新增商品，並且最新商品列表不為空，取最後一個商品的 ID
+        if (this.isNew && this.products.length > 0) {
+          
+          // 只有在新增商品時才調用 ratingData 方法
+          if (!this.isDeleting) {
             const newProductId = this.products[0].id;
             // 調用 ratingData 方法，將新增商品的 ID 及星值更新到 cookie 中
             this.ratingData(newProductId, this.tempRating.score);
           }
+        }
         })
         .catch((arr) => {
           alert(`${err.data.message}`);
@@ -64,7 +68,7 @@ createApp({
         this.tempRating.ratingId = ratingId;
         this.tempRating.score = score;
         // Set cookie with product id and rating
-        document.cookie = `product_${this.tempRating.ratingId}_rating=${this.tempRating.score}`;
+        document.cookie = `productY_${this.tempRating.ratingId}_rating=${this.tempRating.score}`;
       }
     },
     openModal(status,product) {
@@ -91,7 +95,7 @@ createApp({
         this.$refs.pModal.openModal(this.tempProduct, this.isNew); // 將資料透過 props 傳遞
 
         // Read cookie and return the rating for the specified product id
-        const cookieName = `product_${this.tempProduct.id}_rating`;  // 使用 product.id 來區分每個產品
+        const cookieName = `productY_${this.tempProduct.id}_rating`;  // 使用 product.id 來區分每個產品
         const cookies = document.cookie.split(';');
         let found = false; // 用於標記是否找到相應的 cookie
         for (const cookie of cookies) {
@@ -100,7 +104,7 @@ createApp({
             // 更新 tempRating 的值，以便 Vue.js 可以偵測到變化
             this.tempRating.ratingId = this.tempProduct.id;
             this.tempRating.score = parseInt(value, 10) || 0;
-            console.log(`Rating for product ${this.tempProduct.id}: ${value}`);
+            // console.log(`Rating for product ${this.tempProduct.id}: ${value}`);
             found = true;
             break; // 找到相應的 cookie 後退出迴圈
           }
@@ -110,7 +114,7 @@ createApp({
         if (!found) {
           this.tempRating.ratingId = this.tempProduct.id;
           this.tempRating.score = 0;
-          console.log(`No rating found for product ${this.tempProduct.id}. Using default value: 0`);
+          // console.log(`No rating found for product ${this.tempProduct.id}. Using default value: 0`);
         }
 
       }else if(status === 'delete'){
@@ -166,9 +170,8 @@ createApp({
       )
       .then((res) => {
         // console.log(res);
-        this.getProducts();
         this.removeProductRatingCookie(this.tempProduct.id);  // 將此行移動到重置tempProduct之後
-        this.removeProductRatingCookie2();
+        this.getProducts();
         this.tempProduct ={};
         this.$refs.delpModal.closeModal();
       })
@@ -191,16 +194,20 @@ createApp({
         axios
         .post(`${this.api_url}/api/${this.api_path}/admin/upload`,formData)
         .then((res) => {
-          alert("網址產生中，請稍後");
+          const confirmationMessage = `
+            網址產生中，請稍後...
+            關閉提示視窗後，等待顯示圖片網址，再點確認按鈕
+          `;
+          alert(`${confirmationMessage}`);
 
           // 使用 setTimeout 等待一段時間（這裡是3秒，根據需求調整）
           setTimeout(() => {
             // 執行後續的代碼
             this.tempProduct.imagesUrl.push(res.data.imageUrl);
-            console.log(res.data.imageUrl);
+            // console.log(res.data.imageUrl);
             // 彈出警告
             // 其他後續操作
-          }, 2000); // 3000 毫秒即為 3 秒
+          }, 3000); // 3000 毫秒即為 3 秒
           // alert(`${res.data.imageUrl}`);
         })
         .catch((err) => {
@@ -209,12 +216,14 @@ createApp({
           alert(`${err.data.message}`);
         });
     },
-    removeProductRatingCookie(ratingId) {
-      document.cookie = `product_${ratingId}_rating=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    removeProductRatingCookie(productId) {
+      // 刪除與被刪除產品相關的 cookie
+      const cookieName = `productY_${productId}_rating`;
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
     },
-    removeProductRatingCookie2() {
-      document.cookie = `product_undefined_rating=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    }
+    // removeProductRatingCookie2() {
+    //   document.cookie = `product_undefined_rating=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    // }
   },
   mounted() {
     //取得cookie資料
