@@ -77,6 +77,8 @@ createApp({
           "imagesUrl": []
         }
         this.isNew = true;
+        this.tempRating.ratingId = 0;
+        this.tempRating.score = 0;
         this.modalProduct.show();
         
       }else if(status === 'edit'){

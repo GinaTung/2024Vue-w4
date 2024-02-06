@@ -79,7 +79,8 @@ createApp({
           "imagesUrl": []
         }
         this.isNew = true;
-
+        this.tempRating.ratingId = 0;
+        this.tempRating.score = 0;
         // this.modalProduct.show();
         // 影片大概30分部分
         this.$refs.pModal.openModal(this.tempProduct, this.isNew); // 將資料透過 props 傳遞
