@@ -152,10 +152,10 @@ export default {
                   <input type="radio" id="star3" name="rating_id" :value="3" @click="setRating(tempProduct.id, 3)"/><label for="star3" title="3 star"></label>
                   <input type="radio" id="star2" name="rating_id" :value="2" @click="setRating(tempProduct.id, 2)"/><label for="star2" title="2 star"></label>
                   <input type="radio" id="star1" name="rating_id" :value="1" @click="setRating(tempProduct.id, 1)"/><label for="star1" title="1 star"></label>
-              </div>
-              <div class="col-md-4 ms-3">
-                {{starScore}} 顆星
                 </div>
+                <div class="col-md-4 ms-3">
+                  {{starScore}} 顆星
+                  </div>
                 </div>
               </div>
               <hr />

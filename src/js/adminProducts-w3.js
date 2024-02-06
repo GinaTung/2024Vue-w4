@@ -18,7 +18,10 @@ createApp({
       pages:{},
       modalProduct:null,//productModal
       modalDel:null,//delProductModal
-      isNew:false
+      isNew:false,
+      ratingId:0,
+      score:0,
+      tempRating:{},
     };
   },
   methods: {
@@ -42,30 +45,45 @@ createApp({
         .then((res) => {
           this.products = res.data.products;
           this.pages = res.data.pagination;
-          // console.log(res);
+          console.log(res);
+          // 如果是新增商品，並且最新商品列表不為空，取最後一個商品的 ID
+          if (this.isNew && this.products.length > 0) {
+            const newProductId = this.products[0].id;
+            // 調用 ratingData 方法，將新增商品的 ID 及星值更新到 cookie 中
+            this.ratingData(newProductId, this.tempRating.score);
+          }
         })
         .catch((arr) => {
           alert(`${err.data.message}`);
         });
     },
-    openModal(status,product) {
+    ratingData(ratingId,score){
+      if(ratingId !== undefined){
+        this.tempRating.ratingId = ratingId;
+        this.tempRating.score = score;
+        // Set cookie with product id and rating
+        document.cookie = `product_${this.tempRating.ratingId}_rating=${this.tempRating.score}`;
+      }
+    },
+    openModal(status,product,score) {
       // myModal.show();=>element id方法
       // console.log(status,product);
-      if( status === 'new'){
+      if (status === 'new') {
         this.tempProduct = {
           "imagesUrl": []
         }
         this.isNew = true;
         this.modalProduct.show();
-
+        
       }else if(status === 'edit'){
         this.tempProduct = { ...product };
-        if(!Array.isArray(this.tempProduct.imagesUrl)){
-          this.tempProduct.imagesUrl=[];
+        if (!Array.isArray(this.tempProduct.imagesUrl)) {
+          this.tempProduct.imagesUrl = [];
         }
         this.isNew = false;
         this.modalProduct.show();
-      }else if(status === 'delete'){
+
+      } else if(status === 'delete'){
         this.tempProduct = { ...product };
         this.modalDel.show();
       }
@@ -79,10 +97,10 @@ createApp({
           {data:this.tempProduct}
         )
         .then((res) => {
-          // console.log(res);
+          console.log(res);
           alert(`已建立產品`);
           this.getProducts();
-          this.tempProduct ={};
+          this.tempProduct = {};
           this.modalProduct.hide();
         })
         .catch((err) => {
@@ -119,6 +137,8 @@ createApp({
       .then((res) => {
         // console.log(res);
         this.getProducts();
+        this.removeProductRatingCookie(this.tempProduct.id);  // 將此行移動到重置tempProduct之後
+        this.removeProductRatingCookie2();
         this.tempProduct ={};
         this.modalDel.hide();
       })
@@ -126,6 +146,12 @@ createApp({
         // console.log(err);
         alert(`${err.data.message}`);
       });
+    },
+    removeProductRatingCookie(ratingId) {
+      document.cookie = `product_${ratingId}_rating=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    },
+    removeProductRatingCookie2() {
+      document.cookie = `product_undefined_rating=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     }
   },
   mounted() {
